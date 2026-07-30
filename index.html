@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>¿Cuál es tu modelo experimental?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  :root{
+    --violeta:#6C4AB6;
+    --violeta-osc:#4c3183;
+    --coral:#FF6F91;
+    --menta:#2EC4B6;
+    --amarillo:#FFC145;
+    --texto:#241b35;
+  }
+  *{box-sizing:border-box;}
+  html,body{overflow-x:hidden;}
+  body{
+    margin:0;
+    min-height:100vh;
+    font-family:'Nunito',sans-serif;
+    color:var(--texto);
+    background:linear-gradient(160deg,#f5f0ff 0%,#fff 45%,#eafff6 100%);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    position:relative;
+  }
+  body::before,body::after{
+    content:"";position:fixed;width:360px;height:360px;border-radius:50%;
+    filter:blur(70px);opacity:.30;z-index:0;pointer-events:none;
+  }
+  body::before{background:var(--coral);top:-120px;left:-120px;}
+  body::after{background:var(--menta);bottom:-140px;right:-120px;}
+  .deco{position:fixed;font-size:32px;opacity:.16;z-index:0;pointer-events:none;animation:flotar 6s ease-in-out infinite;}
+  @keyframes flotar{0%,100%{transform:translateY(0) rotate(0deg);}50%{transform:translateY(-20px) rotate(8deg);}}
+
+  /* --- moscas volando de un lado al otro de la pantalla --- */
+  .mosca-volando{position:fixed;font-size:22px;opacity:.35;z-index:0;pointer-events:none;animation-name:volar-cruzar;animation-timing-function:linear;animation-iteration-count:infinite;}
+  @keyframes volar-cruzar{
+    0%{transform:translate(-10vw,0) rotate(0deg);}
+    25%{transform:translate(28vw,-22px) rotate(10deg);}
+    50%{transform:translate(58vw,12px) rotate(-8deg);}
+    75%{transform:translate(88vw,-16px) rotate(8deg);}
+    100%{transform:translate(120vw,0) rotate(0deg);}
+  }
+
+  /* --- ratones correteando por el borde inferior --- */
+  .raton-corriendo{position:fixed;bottom:4%;font-size:24px;opacity:.35;z-index:0;pointer-events:none;animation-name:correr;animation-timing-function:linear;animation-iteration-count:infinite;}
+  @keyframes correr{
+    0%{transform:translateX(-10vw) scaleX(1);}
+    48%{transform:translateX(104vw) scaleX(1);}
+    50%{transform:translateX(104vw) scaleX(-1);}
+    98%{transform:translateX(-10vw) scaleX(-1);}
+    100%{transform:translateX(-10vw) scaleX(1);}
+  }
+
+  /* --- celulas flotando que se van "dividiendo" (mitosis) --- */
+  .celula-wrap{position:fixed;width:70px;height:34px;z-index:0;pointer-events:none;opacity:.4;}
+  .celula-wrap .c{position:absolute;top:4px;width:26px;height:26px;border-radius:50%;left:22px;
+    background:radial-gradient(circle at 35% 35%, #eafff6, var(--menta));
+    box-shadow:0 0 0 2px rgba(46,196,182,.25) inset;
+    animation-duration:5s;animation-timing-function:ease-in-out;animation-iteration-count:infinite;}
+  .celula-wrap .c1{animation-name:dividir-izq;}
+  .celula-wrap .c2{animation-name:dividir-der;}
+  @keyframes dividir-izq{
+    0%{transform:translateX(0) scale(0);opacity:0;}
+    12%{transform:translateX(0) scale(1);opacity:1;}
+    45%{transform:translateX(0) scale(1);opacity:1;}
+    70%{transform:translateX(-15px) scale(.78);opacity:1;}
+    92%{transform:translateX(-15px) scale(.78);opacity:1;}
+    100%{transform:translateX(-15px) scale(0);opacity:0;}
+  }
+  @keyframes dividir-der{
+    0%{transform:translateX(0) scale(0);opacity:0;}
+    12%{transform:translateX(0) scale(1);opacity:1;}
+    45%{transform:translateX(0) scale(1);opacity:1;}
+    70%{transform:translateX(15px) scale(.78);opacity:1;}
+    92%{transform:translateX(15px) scale(.78);opacity:1;}
+    100%{transform:translateX(15px) scale(0);opacity:0;}
+  }
+
+  @media (max-width:760px){ .deco, .mosca-volando, .raton-corriendo, .celula-wrap{display:none;} }
+
+  h1,h2,h3{font-family:'Baloo 2',sans-serif; margin:0 0 10px;}
+  #app{
+    width:100%;
+    max-width:560px;
+    background:#fff;
+    border-radius:28px;
+    box-shadow:0 24px 60px rgba(76,49,131,0.20);
+    padding:36px 30px;
+    text-align:center;
+    position:relative;
+    z-index:1;
+    overflow:hidden;
+  }
+  #app::before{
+    content:"";position:absolute;top:0;left:0;right:0;height:8px;
+    background:linear-gradient(90deg,var(--coral),var(--amarillo),var(--menta),var(--violeta));
+  }
+  .contenido{animation:aparecer .35s ease;}
+  @keyframes aparecer{from{opacity:0;transform:translateY(10px);} to{opacity:1;transform:translateY(0);}}
+
+  .subtitulo{color:#6b5c85;font-size:15px;margin-bottom:22px;line-height:1.5;}
+  .btn{
+    display:inline-block;
+    border:none;
+    cursor:pointer;
+    font-family:'Baloo 2',sans-serif;
+    font-size:17px;
+    font-weight:600;
+    padding:14px 26px;
+    border-radius:16px;
+    background:linear-gradient(135deg,var(--violeta),#8a6fd1);
+    color:#fff;
+    margin:8px 6px;
+    transition:transform .15s ease, box-shadow .15s ease;
+    box-shadow:0 6px 0 var(--violeta-osc);
+  }
+  .btn:hover{transform:translateY(-2px);}
+  .btn:active{transform:translateY(3px); box-shadow:0 2px 0 var(--violeta-osc);}
+  .btn.secundario{background:#fff;color:var(--violeta);border:2px solid var(--violeta);box-shadow:none;}
+  .btn.chico{font-size:13px;padding:8px 14px;border-radius:12px;box-shadow:none;}
+
+  #qr-box{display:flex;justify-content:center;margin:18px 0;}
+  #qr-box canvas, #qr-box img{border-radius:14px;padding:10px;background:#fff;border:3px solid var(--violeta);}
+
+  .beaker{width:64px;height:84px;margin:0 auto 10px;position:relative;}
+  .beaker-cuello{position:absolute;top:-11px;left:50%;transform:translateX(-50%);width:26px;height:12px;border:3px solid var(--violeta);border-bottom:none;border-radius:6px 6px 0 0;background:#f5f0ff;}
+  .beaker-vidrio{position:absolute;inset:0;border:3px solid var(--violeta);border-top:none;border-radius:2px 2px 16px 16px;overflow:hidden;background:#f5f0ff;}
+  .beaker-liquido{position:absolute;bottom:0;left:0;right:0;height:0%;background:linear-gradient(180deg,var(--coral),var(--violeta));transition:height .45s ease;}
+  .pregunta-num{color:#9a86bd;font-weight:700;font-size:13px;letter-spacing:.5px;text-transform:uppercase;margin-bottom:18px;}
+
+  .pregunta-texto{font-size:21px;font-weight:600;margin-bottom:22px;font-family:'Baloo 2',sans-serif;}
+  .opcion{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    width:100%;
+    text-align:left;
+    background:#faf7ff;
+    border:2px solid #e6d9f7;
+    border-radius:16px;
+    padding:13px 16px;
+    margin-bottom:12px;
+    font-size:15.5px;
+    font-family:'Nunito',sans-serif;
+    cursor:pointer;
+    transition:.15s ease;
+  }
+  .opcion:hover{background:#f1e6ff;border-color:var(--violeta);transform:translateX(3px) scale(1.01);}
+  .opcion-letra{
+    flex:0 0 auto;width:26px;height:26px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Baloo 2',sans-serif;font-weight:700;font-size:13px;color:#fff;
+  }
+  .nav-fila{display:flex;justify-content:space-between;margin-top:6px;}
+
+  .badge-wrap{width:190px;height:190px;margin:0 auto 18px;position:relative;}
+  .badge-ring{position:absolute;inset:-9px;border-radius:50%;border:3px dashed #ccc;animation:girar 14s linear infinite;}
+  @keyframes girar{to{transform:rotate(360deg);}}
+  .photo-frame{
+    width:100%;height:100%;border-radius:50%;
+    position:relative;overflow:hidden;
+    display:flex;align-items:center;justify-content:center;
+    border:6px solid #fff;
+    box-shadow:0 8px 22px rgba(76,49,131,0.25);
+  }
+  .photo-frame .emoji-grande{font-size:84px;}
+  .photo-frame img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+
+  .eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:1px;color:#9a86bd;font-weight:700;margin-bottom:6px;}
+  .arquetipo-nombre{font-size:28px;margin-bottom:8px;}
+  .resultado-frase{font-family:'Baloo 2',sans-serif;font-size:16px;color:var(--violeta);font-weight:600;margin-bottom:14px;font-style:italic;}
+  .resultado-titulo{font-size:26px;margin-bottom:6px;}
+  .resultado-desc{font-size:15.5px;line-height:1.55;color:#463a5e;text-align:left;background:#faf7ff;padding:16px 18px;border-radius:16px;margin-bottom:18px;}
+
+  .chip-label{font-size:11.5px;text-transform:uppercase;letter-spacing:.5px;color:#a996c4;font-weight:700;margin:14px 0 8px;text-align:left;}
+  .chip-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:6px;}
+  .chip{padding:6px 13px;border-radius:20px;font-size:13px;font-weight:700;font-family:'Baloo 2',sans-serif;}
+  .chip.virtud{background:#e3f9f2;color:#128a6e;}
+  .chip.defecto{background:#fff1e2;color:#c9721f;}
+
+  .perfil-titulo{font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:#9a86bd;font-weight:700;text-align:left;margin-bottom:10px;}
+  .footer-nota{font-size:12px;color:#a996c4;margin-top:18px;}
+
+  .barra-stat{margin-bottom:14px;text-align:left;}
+  .barra-stat .etiqueta{display:flex;justify-content:space-between;font-weight:700;font-size:13.5px;margin-bottom:5px;}
+  .barra-fondo{background:#eee0f7;border-radius:14px;height:20px;overflow:hidden;}
+  .barra-rellena{height:100%;border-radius:14px;transition:width .5s ease;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;color:#fff;font-size:11px;font-weight:700;}
+  .total-participantes{font-size:14px;color:#6b5c85;margin:14px 0;}
+
+  .confetti{position:fixed;top:-30px;font-size:22px;pointer-events:none;animation:caer linear forwards;z-index:999;}
+  @keyframes caer{to{transform:translateY(110vh) rotate(360deg);opacity:.3;}}
+  .top-link{position:absolute;top:14px;right:18px;font-size:12px;color:#b3a3d1;cursor:pointer;text-decoration:underline;z-index:2;}
+</style>
+</head>
+<body>
+
+<span class="deco" style="top:8%;left:6%;animation-delay:0s;">🧬</span>
+<span class="deco" style="top:70%;left:4%;animation-delay:1.2s;">🔬</span>
+<span class="deco" style="top:15%;right:6%;animation-delay:.6s;">🧪</span>
+
+<!-- moscas volando de un lado al otro -->
+<span class="mosca-volando" style="top:12%;animation-duration:13s;animation-delay:0s;">🪰</span>
+<span class="mosca-volando" style="top:34%;animation-duration:17s;animation-delay:4s;">🪰</span>
+<span class="mosca-volando" style="top:60%;animation-duration:15s;animation-delay:8s;">🪰</span>
+
+<!-- ratones correteando por abajo -->
+<span class="raton-corriendo" style="animation-duration:19s;animation-delay:0s;">🐭</span>
+<span class="raton-corriendo" style="bottom:9%;animation-duration:23s;animation-delay:6s;">🐭</span>
+
+<!-- celulas que aparecen, se dividen y se desvanecen -->
+<div class="celula-wrap" style="top:20%;left:4%;">
+  <div class="c c1" style="animation-delay:0s;"></div>
+  <div class="c c2" style="animation-delay:0s;"></div>
+</div>
+<div class="celula-wrap" style="top:55%;right:5%;left:auto;">
+  <div class="c c1" style="animation-delay:2.5s;"></div>
+  <div class="c c2" style="animation-delay:2.5s;"></div>
+</div>
+<div class="celula-wrap" style="top:82%;left:8%;">
+  <div class="c c1" style="animation-delay:1.3s;"></div>
+  <div class="c c2" style="animation-delay:1.3s;"></div>
+</div>
+
+<div id="app"></div>
+
+<script>
+/* ======================================================================
+   CONFIGURACIÓN DEL JUEGO — esta es la parte que pueden editar a gusto
+   con tus compañeros. No hace falta tocar nada más abajo de esta sección.
+   ====================================================================== */
+
+// Espacio de nombres del contador en vivo. Si van a usar el juego en OTRO
+// seminario más adelante y quieren arrancar el conteo de cero, alcanza con
+// cambiar este texto (por ejemplo agregar la fecha nueva).
+const NAMESPACE = "leloir-seminario-becarios-2026";
+
+// El juego revela primero un ARQUETIPO de personalidad, y recién después
+// el modelo experimental asociado (como el Sombrero Seleccionador: primero
+// dice qué tipo de persona sos, después a qué "casa" pertenecés).
+// Ningún modelo es "mejor" que otro: cada uno tiene virtudes y defectos
+// igual de simpáticos.
+const RESULTADOS = {
+  cultivo: {
+    arquetipo: "El Arquitecto",
+    arquetipoEmoji: "⚙️",
+    organismo: "Cultivo celular",
+    organismoEmoji: "🧫",
+    color: "#2EC4B6",
+    frase: "Si controlás suficientes variables, cualquier problema tiene solución.",
+    virtudes: ["Organizado/a", "Eficiente", "Resolutivo/a", "Optimizador/a"],
+    defectos: ["Controlador/a", "Ansioso/a sin el control", "Perfeccionista", "Obsesivo/a con el detalle"],
+    descripcionArquetipo: "Tu forma de resolver problemas es simplificar, controlar y optimizar. Antes de actuar, reducís variables hasta quedarte con lo esencial. Rendís muchísimo en tu propio ambiente, con las condiciones bajo control — el problema es cuando alguien te las desordena sin avisar.",
+    descripcionOrganismo: "Por eso tu modelo experimental es el cultivo celular: prospera solo si le das exactamente lo que necesita —temperatura, pH, esterilidad— sin sorpresas de por medio. Preferís pocas variables pero muy bien controladas, y experimentar con total libertad dentro de ese sistema cerrado. Ah, y no te tiembla el pulso para invertir en que el experimento salga perfecto."
+  },
+  drosophila: {
+    arquetipo: "El Explorador",
+    arquetipoEmoji: "🧭",
+    organismo: "Drosophila melanogaster",
+    organismoEmoji: "🪰",
+    color: "#FFC145",
+    frase: "Si sale mal, mañana hay otra generación para intentarlo de nuevo.",
+    virtudes: ["Creativo/a", "Curioso/a", "Ingenioso/a", "Adaptable"],
+    defectos: ["Improvisa de más", "Se distrae fácil", "Caos funcional", "Empieza mil cosas a la vez"],
+    descripcionArquetipo: "Tu forma de resolver problemas es probar cosas nuevas. Confiás en la curiosidad y en que la respuesta va a aparecer experimentando, no pensando de más. Sos rápido/a y resolutivo/a, y no le tenés miedo al error — el costo es que a veces dejás puntas sueltas por el camino.",
+    descripcionOrganismo: "Por eso tu modelo experimental es Drosophila melanogaster: barata, veloz, con una generación nueva cada diez días. El costo —económico y hasta ético— de probar muchas alternativas es bajo, así que podés iterar sin culpa y descartar lo que no funciona sin mirar atrás. Rendís muchísimo con poquísimos recursos, siempre a los saltos."
+  },
+  ratones: {
+    arquetipo: "El Estratega",
+    arquetipoEmoji: "🛡️",
+    organismo: "Ratones de laboratorio",
+    organismoEmoji: "🐭",
+    color: "#FF6F91",
+    frase: "Antes de mover una ficha, te asegurás de entender el tablero completo.",
+    virtudes: ["Paciente", "Responsable", "Perseverante", "Buen/a planificador/a"],
+    defectos: ["Sobrepiensa todo", "Tarda en decidir", "Planifica de más", "Algo conservador/a"],
+    descripcionArquetipo: "Tu forma de resolver problemas es entender el sistema completo antes de actuar. Pensás a largo plazo, considerás el contexto, y te importa que el grupo entero llegue bien — no solo vos. La otra cara: a veces te cuesta arrancar sin el visto bueno de todos.",
+    descripcionOrganismo: "Por eso tu modelo experimental es el ratón (o rata) de laboratorio: el que más se parece a nosotros, y el que trae consigo mayor responsabilidad. Sos de los que prefieren hacer menos experimentos, pero que cada uno esté muy justificado — porque el costo, económico y ético, es real, y lo tenés bien presente antes de decidir."
+  }
+};
+
+// Textos para cuando alguien empata entre dos categorías (resultado mixto).
+// Las claves van en orden alfabético: "cultivo-drosophila", "cultivo-ratones", "drosophila-ratones".
+const RESULTADOS_MIXTOS = {
+  "cultivo-drosophila": "Sos una mezcla entre el Arquitecto y el Explorador: te gusta moverte rápido, pero con un mínimo de estructura alrededor. Iterás rápido, sí, pero con un plan B escrito en algún lado.",
+  "cultivo-ratones": "Sos una mezcla entre el Arquitecto y el Estratega: metódico/a y paciente, con vocación de mirar el panorama completo sin perder el control fino de cada detalle.",
+  "drosophila-ratones": "Sos una mezcla entre el Explorador y el Estratega: te movés rápido cuando hace falta, pero también sabés bancarte procesos largos pensando primero en el grupo."
+};
+
+// Las preguntas mezclan situaciones absurdas (patos, apocalipsis zombie, el
+// diablo) con situaciones típicas de becario (el after del seminario, pizza
+// a las 4 AM). A propósito no hablan de laboratorio ni de ciencia — la
+// gracia es que no se note qué respuesta suma para cada perfil. Cada opción
+// tiene un "cat": drosophila / cultivo / ratones. Para agregar o sacar
+// preguntas, sumen o borren objetos de este array — el juego se adapta solo.
+const PREGUNTAS = [
+  {
+    texto: "Hace tres días que te sigue un pato por el instituto. ¿Qué hacés?",
+    opciones: [
+      { texto: "Le armo un mini refugio improvisado en el patio. Ya está domesticado a esta altura.", cat: "cultivo" },
+      { texto: "Aviso a los vecinos y pego un par de carteles. No me quedo tranquilo/a hasta ubicar al dueño.", cat: "ratones" },
+      { texto: "Le pongo nombre y sigo con mi vida. Ya somos socios.", cat: "drosophila" }
+    ]
+  },
+  {
+    texto: "Encontrás una caja que dice \"NO ABRIR\". ¿Qué hacés?",
+    opciones: [
+      { texto: "La abro, obvio. Las etiquetas son sugerencias, no reglas.", cat: "drosophila" },
+      { texto: "Reviso bien el contexto (quién la dejó, para qué) antes de decidir con alguien más qué hacer.", cat: "ratones" },
+      { texto: "Antes la peso, la sacudo, la huelo. Ya tengo tres hipótesis de qué hay adentro.", cat: "cultivo" }
+    ]
+  },
+  {
+    texto: "Empieza un apocalipsis zombie justo cuando estás en el instituto. ¿Cuál es tu prioridad?",
+    opciones: [
+      { texto: "Reúno al equipo y repartimos roles antes de movernos. Solos no llegamos a ningún lado.", cat: "ratones" },
+      { texto: "Me atrincho en el lugar que ya tengo mapeado de memoria.", cat: "cultivo" },
+      { texto: "Salgo a explorar. Ya perdí más tiempo escuchando el anuncio que reaccionando.", cat: "drosophila" }
+    ]
+  },
+  {
+    texto: "Lu avisa que este viernes hay seminario y FIL paga la cerveza. ¿Vos qué hacés?",
+    opciones: [
+      { texto: "Intento averiguar quiénes van a ir, y ese día hago las compras temprano para ver qué vamos a tomar.", cat: "cultivo" },
+      { texto: "Voy directo, ya se va a ir armando solo.", cat: "drosophila" },
+      { texto: "Le pregunto a Lu los detalles antes de decir que sí: a qué hora, quién más va, si hay que llevar algo.", cat: "ratones" }
+    ]
+  },
+  {
+    texto: "Un mago te ofrece un único poder para toda la vida. ¿Cuál elegís?",
+    opciones: [
+      { texto: "Volar. La gracia es llegar más rápido a cualquier lado y ver todo desde arriba.", cat: "drosophila" },
+      { texto: "Regenerarme al instante de cualquier golpe o error. Cero tiempo de inactividad.", cat: "cultivo" },
+      { texto: "Saber de antemano las consecuencias de cada decisión. Menos sorpresas, menos arrepentimientos.", cat: "ratones" }
+    ]
+  },
+  {
+    texto: "El diablo te ofrece un trato: todo lo que quieras, a cambio de algo. ¿Cómo reaccionás?",
+    opciones: [
+      { texto: "Pido el contrato, lo reviso línea por línea, y negocio un par de cláusulas antes de firmar.", cat: "cultivo" },
+      { texto: "Pregunto qué gana él con esto. Si me conviene demasiado, ahí es cuando más desconfío.", cat: "ratones" },
+      { texto: "Firmo. Ya después vemos la letra chica, si es que hay letra chica.", cat: "drosophila" }
+    ]
+  },
+  {
+    texto: "En medio del afterlab a alguien se le ocurre pedir pizzas. Hay que ir a buscarlas a la esquina. ¿Qué hacés?",
+    opciones: [
+      { texto: "Voy yo. Si me equivoco de pedido, no pasa nada, pedimos otra.", cat: "drosophila" },
+      { texto: "Voy, pero llevo a alguien más. Cargar cuatro cajas de pizza solo/a es un accidente esperando pasar.", cat: "ratones" },
+      { texto: "Antes de salir armo la lista optimizada: quién puso plata, qué gustos, cero faltantes.", cat: "cultivo" }
+    ]
+  },
+  {
+    texto: "Se hacen las 4 AM en el afterlab y alguien propone ir a Makena. ¿Qué hacés?",
+    opciones: [
+      { texto: "Depende de si va el grupo. A esta hora prefiero no volver solo/a a ningún lado.", cat: "ratones" },
+      { texto: "Hago cuentas rápidas: cuánto voy a dormir versus qué tan bueno puede estar. Ahí decido.", cat: "cultivo" },
+      { texto: "Voy sin pensarlo dos veces. Ya que estamos despiertos, que sea noche completa.", cat: "drosophila" }
+    ]
+  },
+  {
+    texto: "Estás un sábado en FIL y ves agua debajo de tu ultrafreezer. ¿Qué hacés?",
+    opciones: [
+      { texto: "Entro en modo crisis y llamo al primer número de emergencia que tengo anotado en la puerta.", cat: "cultivo" },
+      { texto: "Me pongo a mover todo inmediatamente. Después veo cómo lo soluciono, aviso, y me fijo de quién era cada cosa.", cat: "drosophila" },
+      { texto: "Mando un mensaje al grupo preguntando qué carajo hay que hacer. Esto no lo resuelvo solo/a.", cat: "ratones" }
+    ]
+  },
+  {
+    texto: "Antes del afterlab hacen una vaquita y van al Carrefour de la esquina a comprar algo para tomar. ¿Qué hacés vos?",
+    opciones: [
+      { texto: "Pregunto primero qué le gusta a cada uno. Prefiero acertar antes que ahorrar cinco pesos.", cat: "ratones" },
+      { texto: "Agarro lo primero que veo en oferta. Zafo rápido y ya está.", cat: "drosophila" },
+      { texto: "Comparo precios y calculo cuánto entra por persona antes de elegir.", cat: "cultivo" }
+    ]
+  },
+  {
+    texto: "Es el coffee break de un congreso científico y no conocés a nadie. ¿Qué hacés?",
+    opciones: [
+      { texto: "Me sumo a la primera conversación que escucho. Ya me presento después.", cat: "drosophila" },
+      { texto: "Reviso el programa para saber con quién me conviene hablar y voy directo a esa persona.", cat: "cultivo" },
+      { texto: "Busco a alguien de mi instituto y me quedo cerca, por las dudas.", cat: "ratones" }
+    ]
+  },
+  {
+    texto: "Después de una charla en un congreso, se abre la ronda de preguntas. ¿Qué hacés?",
+    opciones: [
+      { texto: "Espero a ver si alguien más pregunta lo mismo que yo antes de exponerme.", cat: "ratones" },
+      { texto: "Levanto la mano y pregunto lo primero que se me ocurrió. Ya después vemos si tenía sentido.", cat: "drosophila" },
+      { texto: "Preparo la pregunta mentalmente un par de veces antes de levantar la mano, que suene impecable.", cat: "cultivo" }
+    ]
+  }
+];
+
+/* ======================================================================
+   LÓGICA DEL JUEGO — de acá para abajo no hace falta tocar nada,
+   salvo que quieran cambiar cómo se ve o se comporta el juego.
+   ====================================================================== */
+
+const app = document.getElementById("app");
+let estado = "start";
+let preguntaActual = 0;
+let respuestas = [];
+let yaConte = false;
+const COLORES_LETRA = ["#FF6F91", "#2EC4B6", "#FFC145"];
+
+function ir(nuevoEstado){ estado = nuevoEstado; render(); }
+
+function render(){
+  clearInterval(window.__statsInterval);
+  if(estado === "start") return renderStart();
+  if(estado === "quiz") return renderQuiz();
+  if(estado === "arquetipo") return renderArquetipo();
+  if(estado === "resultado") return renderResultado();
+  if(estado === "stats") return renderStats();
+}
+
+function renderStart(){
+  app.innerHTML = `
+    <div class="top-link" onclick="ir('stats')">📊 resultados en vivo</div>
+    <div class="contenido">
+      <h1>¿Cuál es tu modelo experimental?</h1>
+      <p class="subtitulo">Escaneá el QR con tu celular (o tocá "Empezar" si ya estás acá) y contestá algunas preguntas random sobre vos. Ninguna tiene que ver con ciencia... hasta el final.</p>
+      <div id="qr-box"></div>
+      <button class="btn" onclick="empezar()">Empezar 🚀</button>
+      <p class="footer-nota">Seminario de becarios · edición ${new Date().getFullYear()}</p>
+    </div>
+  `;
+  const qrBox = document.getElementById("qr-box");
+  try{
+    new QRCode(qrBox, { text: window.location.href.split("#")[0], width: 190, height: 190, colorDark:"#6C4AB6" });
+  }catch(e){
+    qrBox.innerHTML = "<p style='font-size:12px;color:#999'>(no se pudo generar el QR, compartí el link directamente)</p>";
+  }
+}
+
+function empezar(){
+  preguntaActual = 0;
+  respuestas = [];
+  yaConte = false;
+  ir("quiz");
+}
+
+function renderQuiz(){
+  const p = PREGUNTAS[preguntaActual];
+  const pct = Math.round((preguntaActual / PREGUNTAS.length) * 100);
+  app.innerHTML = `
+    <div class="contenido">
+      <div class="beaker">
+        <div class="beaker-cuello"></div>
+        <div class="beaker-vidrio"><div class="beaker-liquido" style="height:${pct}%"></div></div>
+      </div>
+      <div class="pregunta-num">Pregunta ${preguntaActual + 1} de ${PREGUNTAS.length}</div>
+      <div class="pregunta-texto">${p.texto}</div>
+      ${p.opciones.map((op, i) => `
+        <button class="opcion" onclick="responder(${i})">
+          <span class="opcion-letra" style="background:${COLORES_LETRA[i % 3]}">${String.fromCharCode(65 + i)}</span>
+          <span>${op.texto}</span>
+        </button>
+      `).join("")}
+      <div class="nav-fila">
+        ${preguntaActual > 0 ? `<button class="btn secundario chico" onclick="atras()">← Atrás</button>` : `<span></span>`}
+        <span></span>
+      </div>
+    </div>
+  `;
+}
+
+function responder(i){
+  const cat = PREGUNTAS[preguntaActual].opciones[i].cat;
+  respuestas[preguntaActual] = cat;
+  if(preguntaActual < PREGUNTAS.length - 1){
+    preguntaActual++;
+    render();
+  } else {
+    // Si hay un ganador claro, primero mostramos el arquetipo de personalidad
+    // (como el Sombrero Seleccionador) y recién después el modelo experimental.
+    // Si empataron dos categorías, vamos directo al resultado combinado.
+    const { ganadores } = calcularGanador();
+    ir(ganadores.length === 1 ? "arquetipo" : "resultado");
+  }
+}
+
+function atras(){
+  preguntaActual = Math.max(0, preguntaActual - 1);
+  render();
+}
+
+function calcularGanador(){
+  const puntos = { drosophila: 0, cultivo: 0, ratones: 0 };
+  respuestas.forEach(cat => { if(puntos[cat] !== undefined) puntos[cat]++; });
+  const max = Math.max(...Object.values(puntos));
+  const ganadores = Object.keys(puntos).filter(k => puntos[k] === max);
+  return { ganadores, puntos };
+}
+
+function renderArquetipo(){
+  const { ganadores } = calcularGanador();
+  const r = RESULTADOS[ganadores[0]];
+  app.innerHTML = `
+    <div class="contenido">
+      <p class="eyebrow">Según tus respuestas...</p>
+      <div class="badge-wrap">
+        <div class="badge-ring" style="border-color:${r.color}"></div>
+        <div class="photo-frame" style="background:linear-gradient(135deg, ${r.color}, #fff)">
+          <span class="emoji-grande">${r.arquetipoEmoji}</span>
+        </div>
+      </div>
+      <h2 class="arquetipo-nombre">Sos ${r.arquetipo}</h2>
+      <p class="resultado-frase">"${r.frase}"</p>
+      <p class="resultado-desc">${r.descripcionArquetipo}</p>
+      <p class="chip-label">Tus superpoderes</p>
+      <div class="chip-row">${r.virtudes.map(v => `<span class="chip virtud">${v}</span>`).join("")}</div>
+      <p class="chip-label">Tus manías</p>
+      <div class="chip-row">${r.defectos.map(d => `<span class="chip defecto">${d}</span>`).join("")}</div>
+      <div style="margin-top:18px;">
+        <button class="btn" onclick="ir('resultado')">¿Cuál es mi modelo experimental? 🔬</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderResultado(){
+  const { ganadores, puntos } = calcularGanador();
+  let titulo, frase, desc, emoji, color, imagen;
+
+  if(ganadores.length === 1){
+    const r = RESULTADOS[ganadores[0]];
+    titulo = r.organismo; frase = `${r.arquetipoEmoji} ${r.arquetipo}`; desc = r.descripcionOrganismo;
+    emoji = r.organismoEmoji; color = r.color; imagen = `images/${ganadores[0]}.jpg`;
+  } else {
+    const key = [...ganadores].sort().join("-");
+    const r1 = RESULTADOS[ganadores[0]], r2 = RESULTADOS[ganadores[1]];
+    titulo = `${r1.organismo} + ${r2.organismo}`;
+    frase = "Empate técnico. Un poco de cada mundo.";
+    desc = RESULTADOS_MIXTOS[key] || `Empataste entre ${r1.organismo} y ${r2.organismo}.`;
+    emoji = r1.organismoEmoji + r2.organismoEmoji;
+    color = r1.color;
+    imagen = null;
+  }
+
+  const totalResp = respuestas.length || 1;
+  const cats = Object.keys(RESULTADOS);
+
+  app.innerHTML = `
+    <div class="contenido">
+      <div class="badge-wrap">
+        <div class="badge-ring" style="border-color:${color}"></div>
+        <div class="photo-frame" style="background:linear-gradient(135deg, ${color}, #fff)">
+          <span class="emoji-grande">${emoji}</span>
+          ${imagen ? `<img src="${imagen}" alt="" onerror="this.style.display='none'">` : ""}
+        </div>
+      </div>
+      <p class="resultado-frase">${frase}</p>
+      <h2 class="resultado-titulo">Tu modelo experimental es: ${titulo}</h2>
+      <p class="resultado-desc">${desc}</p>
+      <p class="perfil-titulo">Tu perfil de respuestas</p>
+      ${cats.map(cat => {
+        const r = RESULTADOS[cat];
+        const pct = Math.round((puntos[cat] / totalResp) * 100);
+        return `
+          <div class="barra-stat">
+            <div class="etiqueta"><span>${r.organismoEmoji} ${r.organismo}</span><span>${pct}%</span></div>
+            <div class="barra-fondo"><div class="barra-rellena" style="width:${pct}%; background:${r.color}"></div></div>
+          </div>
+        `;
+      }).join("")}
+      <button class="btn" onclick="empezar()">Jugar de nuevo 🔁</button>
+      <button class="btn secundario" onclick="ir('stats')">Ver resultados del público 📊</button>
+    </div>
+  `;
+
+  spawnConfetti();
+
+  // Sumamos el resultado al contador en vivo (una sola vez por partida).
+  if(!yaConte){
+    yaConte = true;
+    const paraContar = ganadores.length === 1 ? ganadores[0] : ganadores[Math.floor(Math.random() * ganadores.length)];
+    contarResultado(paraContar);
+  }
+}
+
+function contarResultado(cat){
+  fetch(`https://abacus.jasoncameron.dev/hit/${NAMESPACE}/${cat}`).catch(() => {
+    // Si no hay conexión o la API está caída, no rompemos el juego:
+    // el participante igual ve su resultado, solo no queda contado en las stats.
+  });
+}
+
+function spawnConfetti(){
+  const emojis = ["🎉","✨","🧬","🔬","🪰","🧫","🐭"];
+  for(let i = 0; i < 22; i++){
+    const span = document.createElement("span");
+    span.className = "confetti";
+    span.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+    span.style.left = Math.random() * 100 + "vw";
+    span.style.animationDuration = (2 + Math.random() * 1.5) + "s";
+    document.body.appendChild(span);
+    setTimeout(() => span.remove(), 4000);
+  }
+}
+
+async function obtenerConteo(cat){
+  try{
+    const res = await fetch(`https://abacus.jasoncameron.dev/get/${NAMESPACE}/${cat}`);
+    const data = await res.json();
+    return data.value || 0;
+  }catch(e){
+    return null;
+  }
+}
+
+function renderStats(){
+  app.innerHTML = `
+    <div class="top-link" onclick="ir('start')">← volver</div>
+    <div class="contenido">
+      <h2>📊 ¿Qué eligió el público?</h2>
+      <p class="subtitulo">Se actualiza solo cada pocos segundos.</p>
+      <div id="stats-contenido"><p>Cargando...</p></div>
+      <button class="btn secundario chico" onclick="cargarStats()">Actualizar ahora</button>
+    </div>
+  `;
+  cargarStats();
+  window.__statsInterval = setInterval(cargarStats, 8000);
+}
+
+async function cargarStats(){
+  const cats = Object.keys(RESULTADOS);
+  const valores = await Promise.all(cats.map(obtenerConteo));
+  const cont = document.getElementById("stats-contenido");
+  if(!cont) return;
+
+  if(valores.some(v => v === null)){
+    cont.innerHTML = `<p style="color:#c0527a">No se pudo conectar con el contador en este momento. Probá de nuevo en unos segundos.</p>`;
+    return;
+  }
+
+  const total = valores.reduce((a,b) => a+b, 0);
+  if(total === 0){
+    cont.innerHTML = `<p>Todavía nadie jugó. ¡Sé el primero!</p>`;
+    return;
+  }
+
+  cont.innerHTML = `
+    <div class="total-participantes">Total de participantes: <strong>${total}</strong></div>
+    ${cats.map((cat, i) => {
+      const r = RESULTADOS[cat];
+      const pct = Math.round((valores[i] / total) * 100);
+      return `
+        <div class="barra-stat">
+          <div class="etiqueta"><span>${r.organismoEmoji} ${r.organismo}</span><span>${pct}% (${valores[i]})</span></div>
+          <div class="barra-fondo"><div class="barra-rellena" style="width:${pct}%; background:${r.color}"></div></div>
+        </div>
+      `;
+    }).join("")}
+  `;
+}
+
+render();
+</script>
+</body>
+</html>
