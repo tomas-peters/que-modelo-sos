@@ -2,7 +2,11 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#6C4AB6">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="¿Qué modelo sos?">
 <title>¿Cuál es tu modelo experimental?</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
@@ -16,11 +20,13 @@
     --amarillo:#FFC145;
     --texto:#241b35;
   }
-  *{box-sizing:border-box;}
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
   html,body{overflow-x:hidden;}
+  html{height:-webkit-fill-available;}
   body{
     margin:0;
     min-height:100vh;
+    min-height:100dvh;
     font-family:'Nunito',sans-serif;
     color:var(--texto);
     background:linear-gradient(160deg,#f5f0ff 0%,#fff 45%,#eafff6 100%);
@@ -28,7 +34,15 @@
     align-items:center;
     justify-content:center;
     padding:20px;
+    padding-top:max(20px, env(safe-area-inset-top));
+    padding-bottom:max(20px, env(safe-area-inset-bottom));
+    padding-left:max(20px, env(safe-area-inset-left));
+    padding-right:max(20px, env(safe-area-inset-right));
     position:relative;
+    overscroll-behavior-y:contain;
+  }
+  @media (max-height:640px){
+    body{align-items:flex-start;}
   }
   body::before,body::after{
     content:"";position:fixed;width:360px;height:360px;border-radius:50%;
@@ -103,8 +117,17 @@
     content:"";position:absolute;top:0;left:0;right:0;height:8px;
     background:linear-gradient(90deg,var(--coral),var(--amarillo),var(--menta),var(--violeta));
   }
-  .contenido{animation:aparecer .35s ease;}
-  @keyframes aparecer{from{opacity:0;transform:translateY(10px);} to{opacity:1;transform:translateY(0);}}
+  .contenido{animation:aparecer .4s cubic-bezier(.2,.8,.3,1);}
+  @keyframes aparecer{from{opacity:0;transform:translateY(14px) scale(.98);} to{opacity:1;transform:translateY(0) scale(1);}}
+  .contenido.stagger > *{animation:aparecer .45s cubic-bezier(.2,.8,.3,1) both;}
+  .contenido.stagger > *:nth-child(1){animation-delay:.02s;}
+  .contenido.stagger > *:nth-child(2){animation-delay:.08s;}
+  .contenido.stagger > *:nth-child(3){animation-delay:.14s;}
+  .contenido.stagger > *:nth-child(4){animation-delay:.20s;}
+  .contenido.stagger > *:nth-child(5){animation-delay:.26s;}
+  .contenido.stagger > *:nth-child(6){animation-delay:.32s;}
+  .contenido.stagger > *:nth-child(7){animation-delay:.38s;}
+  .contenido.stagger > *:nth-child(8){animation-delay:.44s;}
 
   .subtitulo{color:#6b5c85;font-size:15px;margin-bottom:22px;line-height:1.5;}
   .btn{
@@ -115,12 +138,16 @@
     font-size:17px;
     font-weight:600;
     padding:14px 26px;
+    min-height:48px;
     border-radius:16px;
     background:linear-gradient(135deg,var(--violeta),#8a6fd1);
     color:#fff;
     margin:8px 6px;
     transition:transform .15s ease, box-shadow .15s ease;
     box-shadow:0 6px 0 var(--violeta-osc);
+    touch-action:manipulation;
+    user-select:none;
+    -webkit-touch-callout:none;
   }
   .btn:hover{transform:translateY(-2px);}
   .btn:active{transform:translateY(3px); box-shadow:0 2px 0 var(--violeta-osc);}
@@ -129,11 +156,25 @@
 
   #qr-box{display:flex;justify-content:center;margin:18px 0;}
   #qr-box canvas, #qr-box img{border-radius:14px;padding:10px;background:#fff;border:3px solid var(--violeta);}
+  .qr-frame{display:inline-block;position:relative;padding:6px;}
+  .qr-frame::before,.qr-frame::after,.qr-esq-a,.qr-esq-b{content:"";position:absolute;width:22px;height:22px;border:4px solid var(--amarillo);}
+  .qr-frame::before{top:-4px;left:-4px;border-right:none;border-bottom:none;border-radius:8px 0 0 0;}
+  .qr-frame::after{bottom:-4px;right:-4px;border-left:none;border-top:none;border-radius:0 0 8px 0;}
+  .qr-esq-a{top:-4px;right:-4px;border-left:none;border-bottom:none;border-radius:0 8px 0 0;}
+  .qr-esq-b{bottom:-4px;left:-4px;border-right:none;border-top:none;border-radius:0 0 0 8px;}
 
-  .beaker{width:64px;height:84px;margin:0 auto 10px;position:relative;}
-  .beaker-cuello{position:absolute;top:-11px;left:50%;transform:translateX(-50%);width:26px;height:12px;border:3px solid var(--violeta);border-bottom:none;border-radius:6px 6px 0 0;background:#f5f0ff;}
-  .beaker-vidrio{position:absolute;inset:0;border:3px solid var(--violeta);border-top:none;border-radius:2px 2px 16px 16px;overflow:hidden;background:#f5f0ff;}
-  .beaker-liquido{position:absolute;bottom:0;left:0;right:0;height:0%;background:linear-gradient(180deg,var(--coral),var(--violeta));transition:height .45s ease;}
+  .kicker{display:inline-block;background:linear-gradient(135deg,var(--amarillo),var(--coral));color:#fff;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:12px;letter-spacing:.5px;padding:5px 14px;border-radius:20px;margin-bottom:14px;box-shadow:0 4px 0 rgba(0,0,0,.08);}
+
+  /* --- matraz Erlenmeyer que se va llenando segun el progreso --- */
+  .matraz-wrap{width:76px;height:96px;margin:0 auto 12px;}
+  .matraz-wrap svg{width:100%;height:100%;overflow:visible;}
+  .matraz-burbuja{animation:burbujear 2.6s ease-in infinite;}
+  @keyframes burbujear{
+    0%{transform:translateY(0);opacity:0;}
+    15%{opacity:.9;}
+    90%{opacity:.3;}
+    100%{transform:translateY(-46px);opacity:0;}
+  }
   .pregunta-num{color:#9a86bd;font-weight:700;font-size:13px;letter-spacing:.5px;text-transform:uppercase;margin-bottom:18px;}
 
   .pregunta-texto{font-size:21px;font-weight:600;margin-bottom:22px;font-family:'Baloo 2',sans-serif;}
@@ -152,16 +193,31 @@
     font-family:'Nunito',sans-serif;
     cursor:pointer;
     transition:.15s ease;
+    touch-action:manipulation;
+    user-select:none;
+    -webkit-touch-callout:none;
   }
   .opcion:hover{background:#f1e6ff;border-color:var(--violeta);transform:translateX(3px) scale(1.01);}
+  .opcion:active{background:#f1e6ff;border-color:var(--violeta);}
+  .opcion:disabled{cursor:default;}
+  .opcion.seleccionada{background:#ece2fb;border-color:var(--violeta);transform:scale(1.02);box-shadow:0 6px 16px rgba(108,74,182,.18);}
+  .opcion.apagada{opacity:.4;}
   .opcion-letra{
     flex:0 0 auto;width:26px;height:26px;border-radius:50%;
     display:flex;align-items:center;justify-content:center;
     font-family:'Baloo 2',sans-serif;font-weight:700;font-size:13px;color:#fff;
+    transition:transform .2s ease;
   }
+  .opcion.seleccionada .opcion-letra{transform:scale(1.15);}
   .nav-fila{display:flex;justify-content:space-between;margin-top:6px;}
 
   .badge-wrap{width:190px;height:190px;margin:0 auto 18px;position:relative;}
+  .badge-wrap::before{
+    content:"";position:absolute;inset:-30px;border-radius:50%;
+    background:radial-gradient(circle, var(--glow,var(--violeta)) 0%, transparent 70%);
+    opacity:.35;animation:pulsar 2.8s ease-in-out infinite;
+  }
+  @keyframes pulsar{0%,100%{transform:scale(1);opacity:.28;}50%{transform:scale(1.12);opacity:.42;}}
   .badge-ring{position:absolute;inset:-9px;border-radius:50%;border:3px dashed #ccc;animation:girar 14s linear infinite;}
   @keyframes girar{to{transform:rotate(360deg);}}
   .photo-frame{
@@ -171,7 +227,8 @@
     border:6px solid #fff;
     box-shadow:0 8px 22px rgba(76,49,131,0.25);
   }
-  .photo-frame .emoji-grande{font-size:84px;}
+  .photo-frame .emoji-grande{font-size:84px;animation:entrada-emoji .5s cubic-bezier(.3,1.4,.5,1);}
+  @keyframes entrada-emoji{from{transform:scale(0) rotate(-25deg);} to{transform:scale(1) rotate(0);}}
   .photo-frame img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
 
   .eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:1px;color:#9a86bd;font-weight:700;margin-bottom:6px;}
@@ -182,7 +239,7 @@
 
   .chip-label{font-size:11.5px;text-transform:uppercase;letter-spacing:.5px;color:#a996c4;font-weight:700;margin:14px 0 8px;text-align:left;}
   .chip-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:6px;}
-  .chip{padding:6px 13px;border-radius:20px;font-size:13px;font-weight:700;font-family:'Baloo 2',sans-serif;}
+  .chip{padding:6px 13px 6px 10px;border-radius:20px;font-size:13px;font-weight:700;font-family:'Baloo 2',sans-serif;display:inline-flex;align-items:center;gap:5px;}
   .chip.virtud{background:#e3f9f2;color:#128a6e;}
   .chip.defecto{background:#fff1e2;color:#c9721f;}
 
@@ -198,6 +255,45 @@
   .confetti{position:fixed;top:-30px;font-size:22px;pointer-events:none;animation:caer linear forwards;z-index:999;}
   @keyframes caer{to{transform:translateY(110vh) rotate(360deg);opacity:.3;}}
   .top-link{position:absolute;top:14px;right:18px;font-size:12px;color:#b3a3d1;cursor:pointer;text-decoration:underline;z-index:2;}
+
+  /* --- flash de color al revelar el resultado --- */
+  .flash-pantalla{position:fixed;inset:0;z-index:998;pointer-events:none;animation:flashPop .55s ease forwards;}
+  @keyframes flashPop{0%{opacity:0;}12%{opacity:.55;}100%{opacity:0;}}
+
+  /* --- brillo que recorre ciertos botones --- */
+  .btn.brillante{position:relative;overflow:hidden;}
+  .btn.brillante::after{
+    content:"";position:absolute;top:0;left:-60%;width:35%;height:100%;
+    background:linear-gradient(120deg, transparent, rgba(255,255,255,.65), transparent);
+    transform:skewX(-20deg);
+    animation:brillo-btn 3.4s ease-in-out infinite;
+  }
+  @keyframes brillo-btn{0%{left:-60%;}45%{left:130%;}100%{left:130%;}}
+
+  /* --- toggle de sonido, flotante en todas las pantallas --- */
+  .sonido-toggle{
+    position:fixed;top:16px;left:18px;z-index:5;background:#fff;border-radius:20px;
+    padding:6px 13px;font-size:12px;font-weight:700;color:var(--violeta);
+    box-shadow:0 4px 14px rgba(76,49,131,.18);cursor:pointer;font-family:'Baloo 2',sans-serif;
+    user-select:none;
+  }
+
+  /* --- toast chiquito de confirmacion (ej: "copiado") --- */
+  .toast{
+    position:fixed;left:50%;bottom:26px;transform:translate(-50%,20px);
+    background:var(--texto);color:#fff;padding:11px 20px;border-radius:20px;
+    font-size:13px;font-weight:700;font-family:'Baloo 2',sans-serif;opacity:0;
+    transition:all .3s ease;z-index:1001;box-shadow:0 8px 22px rgba(0,0,0,.22);
+    pointer-events:none;
+  }
+  .toast.mostrar{opacity:1;transform:translate(-50%,0);}
+
+  /* --- grafico de torta para las stats en vivo --- */
+  .pie-wrap{width:130px;height:130px;margin:6px auto 20px;position:relative;}
+  .pie{position:absolute;inset:0;border-radius:50%;box-shadow:0 8px 20px rgba(76,49,131,.18);}
+  .pie-hueco{position:absolute;inset:18px;background:#fff;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:inset 0 0 0 1px #f0e9fb;}
+  .pie-hueco .num{font-family:'Baloo 2',sans-serif;font-weight:700;font-size:24px;color:var(--violeta);}
+  .pie-hueco .lbl{font-size:9.5px;color:#a996c4;text-transform:uppercase;letter-spacing:.4px;}
 </style>
 </head>
 <body>
@@ -228,6 +324,8 @@
   <div class="c c1" style="animation-delay:1.3s;"></div>
   <div class="c c2" style="animation-delay:1.3s;"></div>
 </div>
+
+<div id="sonido-toggle" class="sonido-toggle" onclick="toggleSonido()">🔇 sonido</div>
 
 <div id="app"></div>
 
@@ -374,14 +472,6 @@ const PREGUNTAS = [
     ]
   },
   {
-    texto: "Antes del afterlab hacen una vaquita y van al Carrefour de la esquina a comprar algo para tomar. ¿Qué hacés vos?",
-    opciones: [
-      { texto: "Pregunto primero qué le gusta a cada uno. Prefiero acertar antes que ahorrar cinco pesos.", cat: "ratones" },
-      { texto: "Agarro lo primero que veo en oferta. Zafo rápido y ya está.", cat: "drosophila" },
-      { texto: "Comparo precios y calculo cuánto entra por persona antes de elegir.", cat: "cultivo" }
-    ]
-  },
-  {
     texto: "Es el coffee break de un congreso científico y no conocés a nadie. ¿Qué hacés?",
     opciones: [
       { texto: "Me sumo a la primera conversación que escucho. Ya me presento después.", cat: "drosophila" },
@@ -409,12 +499,110 @@ let estado = "start";
 let preguntaActual = 0;
 let respuestas = [];
 let yaConte = false;
+let sonidoActivo = false;
+let ultimoTextoCompartir = "";
 const COLORES_LETRA = ["#FF6F91", "#2EC4B6", "#FFC145"];
+
+// Emojis de confetti a juego con el modelo que ganó, para que la lluvia final
+// tenga que ver con el resultado de cada uno.
+const EMOJIS_CONFETTI = {
+  drosophila: ["🪰", "✨", "🎉", "🍌"],
+  cultivo: ["🧫", "✨", "🎉", "🧪"],
+  ratones: ["🐭", "✨", "🎉", "🧀"]
+};
 
 function ir(nuevoEstado){ estado = nuevoEstado; render(); }
 
+/* ---------- pequeños efectos: sonido, vibración, flash, compartir ---------- */
+
+function toggleSonido(){
+  sonidoActivo = !sonidoActivo;
+  const btn = document.getElementById("sonido-toggle");
+  if(btn) btn.textContent = sonidoActivo ? "🔊 sonido" : "🔇 sonido";
+  if(sonidoActivo) beep(660, .05);
+}
+
+function beep(frecuencia, duracion, tipo){
+  if(!sonidoActivo) return;
+  try{
+    if(!window.__audioCtx){
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      window.__audioCtx = new Ctx();
+    }
+    const ctx = window.__audioCtx;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = tipo || "sine";
+    osc.frequency.value = frecuencia;
+    gain.gain.value = 0.06;
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duracion);
+    osc.stop(ctx.currentTime + duracion + 0.02);
+  }catch(e){ /* si el navegador no soporta audio, seguimos sin sonido */ }
+}
+
+function vibrar(patron){
+  try{ if(navigator.vibrate) navigator.vibrate(patron); }catch(e){}
+}
+
+function flashPantalla(color){
+  try{
+    const div = document.createElement("div");
+    div.className = "flash-pantalla";
+    div.style.background = color;
+    document.body.appendChild(div);
+    setTimeout(() => div.remove(), 600);
+  }catch(e){}
+}
+
+function mostrarToast(mensaje){
+  try{
+    const t = document.createElement("div");
+    t.className = "toast";
+    t.textContent = mensaje;
+    document.body.appendChild(t);
+    setTimeout(() => t.classList.add("mostrar"), 10);
+    setTimeout(() => { t.classList.remove("mostrar"); setTimeout(() => t.remove(), 300); }, 2200);
+  }catch(e){}
+}
+
+async function compartir(){
+  const url = window.location.href.split("#")[0];
+  const mensaje = `${ultimoTextoCompartir}\n${url}`;
+  if(navigator.share){
+    try{ await navigator.share({ text: mensaje }); return; }catch(e){ /* canceló o no soportado, seguimos abajo */ }
+  }
+  try{
+    await navigator.clipboard.writeText(mensaje);
+    mostrarToast("¡Copiado! Pegalo donde quieras 📋");
+  }catch(e){
+    window.open(`https://wa.me/?text=${encodeURIComponent(mensaje)}`, "_blank");
+  }
+}
+
+function actualizarFavicon(emoji){
+  try{
+    const canvas = document.createElement("canvas");
+    canvas.width = 64; canvas.height = 64;
+    const ctx = canvas.getContext("2d");
+    ctx.font = "54px serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(emoji, 32, 38);
+    let link = document.querySelector("link[rel~='icon']");
+    if(!link){ link = document.createElement("link"); link.rel = "icon"; document.head.appendChild(link); }
+    link.href = canvas.toDataURL();
+  }catch(e){}
+}
+
+
 function render(){
   clearInterval(window.__statsInterval);
+  // En celular es muy común quedar scrolleado hacia abajo leyendo una pregunta
+  // larga; al cambiar de pantalla siempre arrancamos arriba del todo.
+  try{ window.scrollTo(0, 0); }catch(e){}
   if(estado === "start") return renderStart();
   if(estado === "quiz") return renderQuiz();
   if(estado === "arquetipo") return renderArquetipo();
@@ -425,17 +613,19 @@ function render(){
 function renderStart(){
   app.innerHTML = `
     <div class="top-link" onclick="ir('stats')">📊 resultados en vivo</div>
-    <div class="contenido">
+    <div class="contenido stagger">
+      <span class="kicker">🧪 Test de personalidad científica</span>
       <h1>¿Cuál es tu modelo experimental?</h1>
       <p class="subtitulo">Escaneá el QR con tu celular (o tocá "Empezar" si ya estás acá) y contestá algunas preguntas random sobre vos. Ninguna tiene que ver con ciencia... hasta el final.</p>
       <div id="qr-box"></div>
-      <button class="btn" onclick="empezar()">Empezar 🚀</button>
+      <button class="btn brillante" onclick="empezar()">Empezar 🚀</button>
       <p class="footer-nota">Seminario de becarios · edición ${new Date().getFullYear()}</p>
     </div>
   `;
   const qrBox = document.getElementById("qr-box");
+  qrBox.innerHTML = `<div class="qr-frame"><span class="qr-esq-a"></span><span class="qr-esq-b"></span><div id="qr-canvas"></div></div>`;
   try{
-    new QRCode(qrBox, { text: window.location.href.split("#")[0], width: 190, height: 190, colorDark:"#6C4AB6" });
+    new QRCode(document.getElementById("qr-canvas"), { text: window.location.href.split("#")[0], width: 190, height: 190, colorDark:"#6C4AB6" });
   }catch(e){
     qrBox.innerHTML = "<p style='font-size:12px;color:#999'>(no se pudo generar el QR, compartí el link directamente)</p>";
   }
@@ -451,16 +641,40 @@ function empezar(){
 function renderQuiz(){
   const p = PREGUNTAS[preguntaActual];
   const pct = Math.round((preguntaActual / PREGUNTAS.length) * 100);
+  // El matraz se llena entre y=90 (vacío) e y=6 (casi lleno, sube hasta el cuello).
+  const liqY = 90 - (pct / 100) * 84;
+  const mostrarBurbujas = pct > 15;
   app.innerHTML = `
     <div class="contenido">
-      <div class="beaker">
-        <div class="beaker-cuello"></div>
-        <div class="beaker-vidrio"><div class="beaker-liquido" style="height:${pct}%"></div></div>
+      <div class="matraz-wrap">
+        <svg viewBox="0 0 80 100">
+          <defs>
+            <clipPath id="clipMatraz"><path d="M32,4 H48 V34 L70,90 H10 L32,34 Z"/></clipPath>
+            <clipPath id="clipLiquido"><rect x="0" y="${liqY}" width="80" height="${100 - liqY}"/></clipPath>
+            <linearGradient id="gradLiquido" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#FF6F91"/>
+              <stop offset="100%" stop-color="#6C4AB6"/>
+            </linearGradient>
+          </defs>
+          <g clip-path="url(#clipMatraz)">
+            <rect x="0" y="${liqY}" width="80" height="${100 - liqY}" fill="url(#gradLiquido)"/>
+            <rect x="0" y="${liqY - 1.5}" width="80" height="3" fill="#fff" opacity=".35"/>
+            ${mostrarBurbujas ? `
+              <g clip-path="url(#clipLiquido)">
+                <circle class="matraz-burbuja" cx="30" cy="86" r="2.2" fill="#fff" style="animation-delay:0s"></circle>
+                <circle class="matraz-burbuja" cx="44" cy="86" r="1.6" fill="#fff" style="animation-delay:.9s"></circle>
+                <circle class="matraz-burbuja" cx="37" cy="86" r="1.9" fill="#fff" style="animation-delay:1.7s"></circle>
+              </g>
+            ` : ""}
+          </g>
+          <path d="M32,4 H48 V34 L70,90 H10 L32,34 Z" fill="none" stroke="#6C4AB6" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/>
+          <ellipse cx="40" cy="4" rx="9" ry="2.6" fill="none" stroke="#6C4AB6" stroke-width="3"/>
+        </svg>
       </div>
       <div class="pregunta-num">Pregunta ${preguntaActual + 1} de ${PREGUNTAS.length}</div>
       <div class="pregunta-texto">${p.texto}</div>
       ${p.opciones.map((op, i) => `
-        <button class="opcion" onclick="responder(${i})">
+        <button class="opcion" id="op-${i}" onclick="seleccionarOpcion(${i})">
           <span class="opcion-letra" style="background:${COLORES_LETRA[i % 3]}">${String.fromCharCode(65 + i)}</span>
           <span>${op.texto}</span>
         </button>
@@ -471,6 +685,19 @@ function renderQuiz(){
       </div>
     </div>
   `;
+}
+
+function seleccionarOpcion(i){
+  // Pequeña pausa visual: resaltamos la opción elegida antes de pasar
+  // a la siguiente pregunta, para que se sienta más "juego" y menos salto brusco.
+  vibrar(12);
+  beep(520, .05);
+  const botones = document.querySelectorAll(".opcion");
+  botones.forEach((b, idx) => {
+    b.disabled = true;
+    b.classList.add(idx === i ? "seleccionada" : "apagada");
+  });
+  setTimeout(() => responder(i), 240);
 }
 
 function responder(i){
@@ -505,9 +732,9 @@ function renderArquetipo(){
   const { ganadores } = calcularGanador();
   const r = RESULTADOS[ganadores[0]];
   app.innerHTML = `
-    <div class="contenido">
+    <div class="contenido stagger">
       <p class="eyebrow">Según tus respuestas...</p>
-      <div class="badge-wrap">
+      <div class="badge-wrap" style="--glow:${r.color}">
         <div class="badge-ring" style="border-color:${r.color}"></div>
         <div class="photo-frame" style="background:linear-gradient(135deg, ${r.color}, #fff)">
           <span class="emoji-grande">${r.arquetipoEmoji}</span>
@@ -517,9 +744,9 @@ function renderArquetipo(){
       <p class="resultado-frase">"${r.frase}"</p>
       <p class="resultado-desc">${r.descripcionArquetipo}</p>
       <p class="chip-label">Tus superpoderes</p>
-      <div class="chip-row">${r.virtudes.map(v => `<span class="chip virtud">${v}</span>`).join("")}</div>
+      <div class="chip-row">${r.virtudes.map(v => `<span class="chip virtud">✅ ${v}</span>`).join("")}</div>
       <p class="chip-label">Tus manías</p>
-      <div class="chip-row">${r.defectos.map(d => `<span class="chip defecto">${d}</span>`).join("")}</div>
+      <div class="chip-row">${r.defectos.map(d => `<span class="chip defecto">🌀 ${d}</span>`).join("")}</div>
       <div style="margin-top:18px;">
         <button class="btn" onclick="ir('resultado')">¿Cuál es mi modelo experimental? 🔬</button>
       </div>
@@ -549,9 +776,11 @@ function renderResultado(){
   const totalResp = respuestas.length || 1;
   const cats = Object.keys(RESULTADOS);
 
+  ultimoTextoCompartir = `Soy ${emoji} ${titulo}. ¿Vos qué modelo experimental sos?`;
+
   app.innerHTML = `
-    <div class="contenido">
-      <div class="badge-wrap">
+    <div class="contenido stagger">
+      <div class="badge-wrap" style="--glow:${color}">
         <div class="badge-ring" style="border-color:${color}"></div>
         <div class="photo-frame" style="background:linear-gradient(135deg, ${color}, #fff)">
           <span class="emoji-grande">${emoji}</span>
@@ -572,12 +801,18 @@ function renderResultado(){
           </div>
         `;
       }).join("")}
-      <button class="btn" onclick="empezar()">Jugar de nuevo 🔁</button>
+      <button class="btn secundario" onclick="compartir()">Compartir mi resultado 📲</button>
+      <button class="btn brillante" onclick="empezar()">Jugar de nuevo 🔁</button>
       <button class="btn secundario" onclick="ir('stats')">Ver resultados del público 📊</button>
     </div>
   `;
 
-  spawnConfetti();
+  flashPantalla(color);
+  vibrar([15, 40, 15]);
+  beep(660, .1); setTimeout(() => beep(880, .14), 110);
+  spawnConfetti(ganadores.length === 1 ? ganadores[0] : null);
+  actualizarFavicon(emoji.length <= 2 ? emoji : emoji.slice(0, 2));
+  document.title = `${emoji} ${titulo} · ¿Cuál es tu modelo?`;
 
   // Sumamos el resultado al contador en vivo (una sola vez por partida).
   if(!yaConte){
@@ -594,8 +829,8 @@ function contarResultado(cat){
   });
 }
 
-function spawnConfetti(){
-  const emojis = ["🎉","✨","🧬","🔬","🪰","🧫","🐭"];
+function spawnConfetti(cat){
+  const emojis = EMOJIS_CONFETTI[cat] || ["🎉","✨","🧬","🔬","🪰","🧫","🐭"];
   for(let i = 0; i < 22; i++){
     const span = document.createElement("span");
     span.className = "confetti";
@@ -648,19 +883,56 @@ async function cargarStats(){
     return;
   }
 
+  // Armamos el gradiente cónico de la torta a partir de los % reales,
+  // forzando que el último segmento cierre justo en 100% (por redondeos).
+  let acumulado = 0;
+  const segmentos = cats.map((cat, i) => {
+    const pct = (valores[i] / total) * 100;
+    const desde = acumulado;
+    acumulado += pct;
+    return `${RESULTADOS[cat].color} ${desde}% ${acumulado}%`;
+  });
+
   cont.innerHTML = `
+    <div class="pie-wrap">
+      <div class="pie" style="background:conic-gradient(${segmentos.join(", ")})"></div>
+      <div class="pie-hueco"><span class="num" id="pie-total">0</span><span class="lbl">jugaron</span></div>
+    </div>
     <div class="total-participantes">Total de participantes: <strong>${total}</strong></div>
     ${cats.map((cat, i) => {
       const r = RESULTADOS[cat];
       const pct = Math.round((valores[i] / total) * 100);
       return `
         <div class="barra-stat">
-          <div class="etiqueta"><span>${r.organismoEmoji} ${r.organismo}</span><span>${pct}% (${valores[i]})</span></div>
+          <div class="etiqueta"><span>${r.organismoEmoji} ${r.organismo}</span><span id="pct-${cat}">0%</span></div>
           <div class="barra-fondo"><div class="barra-rellena" style="width:${pct}%; background:${r.color}"></div></div>
         </div>
       `;
     }).join("")}
   `;
+
+  animarNumero("pie-total", total);
+  cats.forEach((cat, i) => {
+    const pct = Math.round((valores[i] / total) * 100);
+    animarNumero(`pct-${cat}`, pct, "%", ` (${valores[i]})`);
+  });
+}
+
+// Anima un número subiendo de 0 al valor final (efecto "contador" en vivo).
+function animarNumero(id, valorFinal, sufijo, extra){
+  const el = document.getElementById(id);
+  if(!el) return;
+  sufijo = sufijo || "";
+  extra = extra || "";
+  const duracion = 600;
+  const inicio = performance.now();
+  function paso(ahora){
+    const t = Math.min(1, (ahora - inicio) / duracion);
+    const valor = Math.round(t * valorFinal);
+    el.textContent = valor + sufijo + extra;
+    if(t < 1) requestAnimationFrame(paso);
+  }
+  requestAnimationFrame(paso);
 }
 
 render();
