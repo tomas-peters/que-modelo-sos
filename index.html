@@ -130,6 +130,7 @@
   .contenido.stagger > *:nth-child(8){animation-delay:.44s;}
 
   .subtitulo{color:#6b5c85;font-size:15px;margin-bottom:22px;line-height:1.5;}
+  .disclaimer{color:#a996c4;font-size:12.5px;font-style:italic;margin-top:-14px;margin-bottom:20px;line-height:1.4;}
   .btn{
     display:inline-block;
     border:none;
@@ -338,7 +339,7 @@
 // Espacio de nombres del contador en vivo. Si van a usar el juego en OTRO
 // seminario más adelante y quieren arrancar el conteo de cero, alcanza con
 // cambiar este texto (por ejemplo agregar la fecha nueva).
-const NAMESPACE = "leloir-seminario-becarios-2026";
+const NAMESPACE = "leloir-seminario-becarios-2026-08-05";
 
 // El juego revela primero un ARQUETIPO de personalidad, y recién después
 // el modelo experimental asociado (como el Sombrero Seleccionador: primero
@@ -617,6 +618,7 @@ function renderStart(){
       <span class="kicker">🧪 Test de personalidad científica</span>
       <h1>¿Cuál es tu modelo experimental?</h1>
       <p class="subtitulo">Escaneá el QR con tu celular (o tocá "Empezar" si ya estás acá) y contestá algunas preguntas random sobre vos. Ninguna tiene que ver con ciencia... hasta el final.</p>
+      <p class="disclaimer">🌱🦠 A la gente de plantas: sabemos que hacen fotosíntesis y ahí se nos acabó el conocimiento. A la de bacterias: son literalmente lo que tratamos de evitar en nuestros cultivos, así que daba raro pedirles que se sientan representados.</p>
       <div id="qr-box"></div>
       <button class="btn brillante" onclick="empezar()">Empezar 🚀</button>
       <p class="footer-nota">Seminario de becarios · edición ${new Date().getFullYear()}</p>
